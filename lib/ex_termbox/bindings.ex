@@ -1,4 +1,7 @@
 defmodule ExTermbox.Bindings do
+  use InlineNif,
+    ex_termbox: :code.priv_dir(:ex_termbox) |> Path.join("termbox_bindings")
+
   @moduledoc """
   Provides the low-level bindings to the termbox library. This module loads the
   NIFs defined in `c_src/` and thinly wraps the C interface.
@@ -71,16 +74,9 @@ defmodule ExTermbox.Bindings do
   @on_load :load_nifs
 
   def load_nifs do
-    case :code.priv_dir(:ex_termbox) do
-      {:error, _} = err ->
-        err
-
-      path ->
-        path
-        |> Path.join("termbox_bindings")
-        |> to_charlist()
-        |> :erlang.load_nif(0)
-    end
+    nif_path(:ex_termbox)
+    |> to_charlist()
+    |> :erlang.load_nif(0)
   end
 
   @doc """
